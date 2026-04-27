@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text.Json;
+using AutoMapper;
 using Dapper;
 using Helloworld.Data;
 using Helloworld.models;
@@ -83,7 +84,60 @@ namespace Helloworld
 
             // openFile.Close();
 
-            string Computerjson = File.ReadAllText("Computers.json");
+            string Computerjson = File.ReadAllText("ComputersSnake.json");
+
+
+        
+
+            Mapper mapper = new Mapper(new MapperConfiguration((cfg) =>
+            {
+
+                cfg.CreateMap<ComputerSnake, Computer>()
+                    .ForMember(destination => destination.ComputerId, options=> 
+                        options.MapFrom(source => source.computer_id))
+                        .ForMember(destination => destination.CPUCores, options=> 
+                        options.MapFrom(source => source.cpu_cores))
+                        .ForMember(destination => destination.HasLTE, options=> 
+                        options.MapFrom(source => source.has_lte))
+                        .ForMember(destination => destination.HasWifi, options=> 
+                        options.MapFrom(source => source.has_wifi))
+                        .ForMember(destination => destination.Motherboard, options=> 
+                        options.MapFrom(source => source.motherboard))
+                        .ForMember(destination => destination.ReleaseDate, options=> 
+                        options.MapFrom(source => source.release_date))
+                        .ForMember(destination => destination.Price, options=> 
+                        options.MapFrom(source => source.price));
+                        
+            }));
+
+            IEnumerable<ComputerSnake>? computersSystem = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<ComputerSnake>>(Computerjson);
+
+            if (computersSystem != null)
+            {
+
+                IEnumerable<Computer> computerResult = mapper.Map<IEnumerable<Computer>>(computersSystem);
+                Console.WriteLine("Automapper Count: " + computerResult.Count());
+
+                foreach (ComputerSnake computer in computersSystem)
+                {
+                    Console.WriteLine(computer.motherboard);
+                }
+            }
+
+            IEnumerable<Computer>? computersJsonPropertyMapping = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<Computer>>(Computerjson);
+
+            if (computersJsonPropertyMapping != null)
+            {
+
+                Console.WriteLine("Json Property Count:"+computersJsonPropertyMapping.Count());
+
+
+                // foreach (Computer computer in computersJsonPropertyMapping)
+                // {
+                //     Console.WriteLine(computer.Motherboard);
+                // }
+            }
+
 
             // System.Console.WriteLine(Computerjson);
 
@@ -93,16 +147,16 @@ namespace Helloworld
             // };
 
             // IEnumerable<Computer>? computers = JsonSerializer.Deserialize<IEnumerable<Computer>>(Computerjson, options);
-            IEnumerable<Computer>? computers = JsonConvert.DeserializeObject<IEnumerable<Computer>>(Computerjson);
+            // IEnumerable<Computer>? computers = JsonConvert.DeserializeObject<IEnumerable<Computer>>(Computerjson);
 
 
-            if (computers != null)
-            {
-                foreach( Computer computer in computers)
-                {
-                    Console.WriteLine(computer.Motherboard);
-                }
-            }
+            // if (computers != null)
+            // {
+            //     foreach( Computer computer in computers)
+            //     {
+            //         Console.WriteLine(computer.Motherboard);
+            //     }
+            // }
 
         }
     
